@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medi_connect/screens/users_pov/tabs/hospital_tab.dart';
+import 'package:medi_connect/screens/landing_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'MediConnect',
-      home: HospitalTab(),
+      home: LandingScreen(),
     );
   }
 }
