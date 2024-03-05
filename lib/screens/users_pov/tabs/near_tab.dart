@@ -3,6 +3,7 @@ import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 
 import '../../../widgets/text_widget.dart';
+import 'hospital_tab.dart';
 
 class NearTab extends StatelessWidget {
   const NearTab({super.key});
@@ -64,7 +65,10 @@ class NearTab extends StatelessWidget {
                     color: primary,
                     radius: 100,
                     label: 'View',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const HospitalTab()));
+                    },
                   ),
                 ],
               ),

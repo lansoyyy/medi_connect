@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medi_connect/screens/users_pov/tabs/hospital_tab.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 
@@ -64,7 +65,10 @@ class AllTab extends StatelessWidget {
                     color: primary,
                     radius: 100,
                     label: 'View',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const HospitalTab()));
+                    },
                   ),
                 ],
               ),
