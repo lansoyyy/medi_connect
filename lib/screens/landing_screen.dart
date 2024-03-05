@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medi_connect/screens/users_pov/home_screen.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
@@ -53,7 +54,10 @@ class LandingScreen extends StatelessWidget {
                   width: 200,
                   color: primary,
                   label: 'Find Hospitals',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const UsersHomeScreen()));
+                  },
                 ),
                 const SizedBox(
                   width: 50,
