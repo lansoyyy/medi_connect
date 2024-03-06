@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:medi_connect/screens/admin_hospital_pov/main_screen.dart';
-import 'package:medi_connect/screens/users_pov/home_screen.dart';
+import 'package:medi_connect/screens/admin_hospital_pov/login_screen.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
 
-class LandingScreen extends StatelessWidget {
-  const LandingScreen({super.key});
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,21 +27,9 @@ class LandingScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextWidget(
-              text: 'Welcome To',
+              text: 'Select Sign in Method',
               fontSize: 18,
               color: Colors.white,
-            ),
-            TextWidget(
-              text: 'MediConnect Bukidnon',
-              fontSize: 75,
-              color: Colors.white,
-              fontFamily: 'Bold',
-            ),
-            TextWidget(
-              text:
-                  '"Helping you find the nearest available hospitals near you"',
-              fontSize: 14,
-              color: Colors.grey,
             ),
             const SizedBox(
               height: 50,
@@ -54,10 +41,10 @@ class LandingScreen extends StatelessWidget {
                 ButtonWidget(
                   width: 200,
                   color: primary,
-                  label: 'Find Hospitals',
+                  label: 'Sign in as Admin',
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const UsersHomeScreen()));
+                        builder: (context) => const LoginScreen()));
                   },
                 ),
                 const SizedBox(
@@ -66,10 +53,10 @@ class LandingScreen extends StatelessWidget {
                 ButtonWidget(
                   width: 200,
                   color: primary,
-                  label: 'Sign In',
+                  label: 'Sign in as Hospital',
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const MainScreen()));
+                        builder: (context) => const LoginScreen()));
                   },
                 ),
               ],
