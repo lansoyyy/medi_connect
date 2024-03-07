@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
 
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 import 'package:medi_connect/widgets/textfield_widget.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  bool inadmin;
+
+  LoginScreen({
+    super.key,
+    this.inadmin = false,
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -58,8 +64,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 175,
                 label: 'Sign In',
                 onPressed: () {
-                  // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  //     builder: (context) => const HomeScreen()));
+                  if (widget.inadmin) {
+                  } else {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => const HospitalHomeScreen()));
+                  }
                 },
               ),
               const SizedBox(

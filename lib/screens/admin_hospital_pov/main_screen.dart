@@ -44,7 +44,9 @@ class MainScreen extends StatelessWidget {
                   label: 'Sign in as Admin',
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const LoginScreen()));
+                        builder: (context) => LoginScreen(
+                              inadmin: true,
+                            )));
                   },
                 ),
                 const SizedBox(
@@ -55,8 +57,8 @@ class MainScreen extends StatelessWidget {
                   color: primary,
                   label: 'Sign in as Hospital',
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const LoginScreen()));
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
                   },
                 ),
               ],
