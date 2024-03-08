@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medi_connect/screens/admin_hospital_pov/admin_home.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
 
 import 'package:medi_connect/utlis/colors.dart';
@@ -65,6 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: 'Sign In',
                 onPressed: () {
                   if (widget.inadmin) {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => const AdminHomeScreen()));
                   } else {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => const HospitalHomeScreen()));
