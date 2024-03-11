@@ -58,6 +58,26 @@
       });
     });
   </script>
+  </script>
+  <script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-core.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBR2B-YBYaEwJ0WiKVCU_0vPkw4DpmqAfs",
+      authDomain: "mediconnect-a4edd.firebaseapp.com",
+      projectId: "mediconnect-a4edd",
+      storageBucket: "mediconnect-a4edd.appspot.com",
+      messagingSenderId: "701825559115",
+      appId: "1:701825559115:web:8e152e9d12b54162e2bbce"
+    };
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+  </script>
 </body>
 
 </html>
