@@ -41,6 +41,7 @@ dependencies:
   firebase_auth:
   fluttertoast:
   get_storage:
+  image_picker:
   intl:
   google_maps_flutter:
   google_maps_flutter_web: ^0.4.0

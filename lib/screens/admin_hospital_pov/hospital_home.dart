@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:html';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medi_connect/utlis/colors.dart';
@@ -7,7 +10,9 @@ import 'package:medi_connect/widgets/text_widget.dart';
 import 'package:medi_connect/widgets/textfield_widget.dart';
 
 class HospitalHomeScreen extends StatefulWidget {
-  const HospitalHomeScreen({super.key});
+  String id;
+
+  HospitalHomeScreen({super.key, required this.id});
 
   @override
   State<HospitalHomeScreen> createState() => _HospitalHomeScreenState();
@@ -34,339 +39,505 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
   final doctorjob = TextEditingController();
   final servicesname = TextEditingController();
 
-  int rooms = 1;
-
   Marker marker = const Marker(markerId: MarkerId('1'));
+
+  uploadToStorage() {
+    InputElement input = FileUploadInputElement() as InputElement
+      ..accept = 'image/*';
+    FirebaseStorage fs = FirebaseStorage.instance;
+    input.click();
+    input.onChange.listen((event) {
+      final file = input.files!.first;
+      final reader = FileReader();
+      reader.readAsDataUrl(file);
+      reader.onLoadEnd.listen((event) async {
+        var snapshot = await fs.ref().child('newfile').putBlob(file);
+        String downloadUrl = await snapshot.ref.getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection('Hospital')
+            .doc(widget.id)
+            .update({'logo': downloadUrl});
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Stream<DocumentSnapshot> userData = FirebaseFirestore.instance
+        .collection('Hospital')
+        .doc(widget.id)
+        .snapshots();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 50, 50),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(
-                  width: 50,
-                ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        child: StreamBuilder<DocumentSnapshot>(
+            stream: userData,
+            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox();
+              } else if (snapshot.hasError) {
+                return const Center(child: Text('Something went wrong'));
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox();
+              }
+              dynamic data = snapshot.data;
+
+              return Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset(
-                        'assets/images/sample_logo.jpg',
-                        height: 75,
+                      const SizedBox(
+                        width: 50,
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            data['logo'] == ''
+                                ? GestureDetector(
+                                    onTap: () {
+                                      uploadToStorage();
+                                    },
+                                    child: Container(
+                                      width: 75,
+                                      height: 75,
+                                      decoration: const BoxDecoration(
+                                          color: Colors.grey,
+                                          shape: BoxShape.circle),
+                                    ),
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
+                                      uploadToStorage();
+                                    },
+                                    child: CircleAvatar(
+                                      minRadius: 35,
+                                      maxRadius: 35,
+                                      backgroundImage:
+                                          NetworkImage(data['logo'].toString()),
+                                    )),
+                            const SizedBox(
+                              width: 50,
+                            ),
+                            TextWidget(
+                              text: data['name'] == ''
+                                  ? 'No name yet'
+                                  : data['name'],
+                              fontSize: 48,
+                              color: primary,
+                              fontFamily: 'Bold',
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(
                         width: 50,
                       ),
-                      TextWidget(
-                        text: 'Polymedic General Hospital',
-                        fontSize: 48,
-                        color: primary,
-                        fontFamily: 'Bold',
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                          width: 500,
+                          height: 500,
+                          child: GoogleMap(
+                            markers: <Marker>{marker},
+                            onTap: (argument) {
+                              setState(() {
+                                marker = Marker(
+                                  markerId: const MarkerId('1'),
+                                  position: LatLng(
+                                      argument.latitude, argument.longitude),
+                                  infoWindow: const InfoWindow(
+                                    title: 'Polymedic Hospital',
+                                  ),
+                                );
+                              });
+                            },
+                            mapType: MapType.normal,
+                            initialCameraPosition: _kGooglePlex,
+                            onMapCreated: (GoogleMapController controller) {
+                              _controller.complete(controller);
+                            },
+                          )),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        child: SizedBox(
+                          width: 500,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  TextWidget(
+                                    text: data['name'] == ''
+                                        ? 'No name yet'
+                                        : data['name'],
+                                    fontSize: 28,
+                                    color: Colors.black,
+                                    fontFamily: 'Bold',
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextFieldWidget(
+                                                  controller: name,
+                                                  label: 'Name',
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                TextFieldWidget(
+                                                    controller: description,
+                                                    label: 'Description'),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Close',
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('Hospital')
+                                                      .doc(widget.id)
+                                                      .update({
+                                                    'name': name.text,
+                                                    'desc': description.text,
+                                                  });
+                                                  Navigator.pop(context);
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Save',
+                                                  fontSize: 14,
+                                                  fontFamily: 'Bold',
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.edit,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              TextWidget(
+                                text: data['desc'] == ''
+                                    ? 'No description yet'
+                                    : data['desc'],
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontFamily: 'Regular',
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              const Divider(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                children: [
+                                  TextWidget(
+                                    text: 'Available Services',
+                                    fontSize: 22,
+                                    color: Colors.black,
+                                    fontFamily: 'Bold',
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextFieldWidget(
+                                                    controller: servicesname,
+                                                    label: 'Name of Service'),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Close',
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('Hospital')
+                                                      .doc(widget.id)
+                                                      .update({
+                                                    'services':
+                                                        FieldValue.arrayUnion([
+                                                      servicesname.text
+                                                    ]),
+                                                  });
+                                                  Navigator.pop(context);
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Save',
+                                                  fontSize: 14,
+                                                  fontFamily: 'Bold',
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.add,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 75,
+                                child: ListView.builder(
+                                  itemCount: data['services'].length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      children: [
+                                        TextWidget(
+                                          text: '• ${data['services'][index]}',
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                          fontFamily: 'Medium',
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        IconButton(
+                                          onPressed: () async {
+                                            await FirebaseFirestore.instance
+                                                .collection('Hospital')
+                                                .doc(widget.id)
+                                                .update({
+                                              'services':
+                                                  FieldValue.arrayRemove([
+                                                data['services'][index]
+                                              ]),
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.delete,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              const Divider(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                children: [
+                                  TextWidget(
+                                    text: 'Hospital Doctors',
+                                    fontSize: 22,
+                                    color: Colors.black,
+                                    fontFamily: 'Bold',
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextFieldWidget(
+                                                    controller: doctorname,
+                                                    label: 'Name of Doctor'),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                TextFieldWidget(
+                                                    controller: doctorjob,
+                                                    label: 'Job of Doctor'),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Close',
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('Hospital')
+                                                      .doc(widget.id)
+                                                      .update({
+                                                    'doctors':
+                                                        FieldValue.arrayUnion([
+                                                      '${doctorname.text} - ${doctorjob.text}'
+                                                    ]),
+                                                  });
+                                                  Navigator.pop(context);
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Save',
+                                                  fontSize: 14,
+                                                  fontFamily: 'Bold',
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.add,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 75,
+                                child: ListView.builder(
+                                  itemCount: data['doctors'].length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      children: [
+                                        TextWidget(
+                                          text: '• ${data['doctors'][index]}',
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                          fontFamily: 'Medium',
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        IconButton(
+                                          onPressed: () async {
+                                            await FirebaseFirestore.instance
+                                                .collection('Hospital')
+                                                .doc(widget.id)
+                                                .update({
+                                              'doctors': FieldValue.arrayRemove(
+                                                  [data['doctors'][index]]),
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.delete,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              const Divider(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              TextWidget(
+                                text: 'Available Emergency Rooms',
+                                fontSize: 22,
+                                color: Colors.black,
+                                fontFamily: 'Bold',
+                              ),
+                              Row(
+                                children: [
+                                  TextWidget(
+                                    text: '• ${data['rooms']} rooms available',
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                    fontFamily: 'Medium',
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      if (data['rooms'] > 1) {
+                                        await FirebaseFirestore.instance
+                                            .collection('Hospital')
+                                            .doc(widget.id)
+                                            .update({
+                                          'rooms': FieldValue.increment(-1)
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(
+                                      Icons.remove,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      await FirebaseFirestore.instance
+                                          .collection('Hospital')
+                                          .doc(widget.id)
+                                          .update({
+                                        'rooms': FieldValue.increment(1)
+                                      });
+                                    },
+                                    icon: const Icon(
+                                      Icons.add,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  width: 50,
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 500,
-                    height: 500,
-                    child: GoogleMap(
-                      markers: <Marker>{marker},
-                      onTap: (argument) {
-                        setState(() {
-                          marker = Marker(
-                            markerId: const MarkerId('1'),
-                            position:
-                                LatLng(argument.latitude, argument.longitude),
-                            infoWindow: const InfoWindow(
-                              title: 'Polymedic Hospital',
-                            ),
-                          );
-                        });
-                      },
-                      mapType: MapType.normal,
-                      initialCameraPosition: _kGooglePlex,
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
-                      },
-                    )),
-                const SizedBox(
-                  width: 30,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 20),
-                  child: SizedBox(
-                    width: 500,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            TextWidget(
-                              text: 'Polymedic General Hospital',
-                              fontSize: 28,
-                              color: Colors.black,
-                              fontFamily: 'Bold',
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          TextFieldWidget(
-                                            controller: name,
-                                            label: 'Name',
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          TextFieldWidget(
-                                              controller: description,
-                                              label: 'Description'),
-                                        ],
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: TextWidget(
-                                            text: 'Close',
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: TextWidget(
-                                            text: 'Save',
-                                            fontSize: 14,
-                                            fontFamily: 'Bold',
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.edit,
-                              ),
-                            ),
-                          ],
-                        ),
-                        TextWidget(
-                          text:
-                              '"Eiusmod consequat officia velit sint fugiat sit laboris elit dolor cupidatat nulla cupidatat. Culpa commodo culpa ut ipsum aliquip enim sit velit anim enim nulla non proident labore. Laborum do aliquip dolore magna irure incididunt exercitation anim nulla minim. Elit do quis qui incididunt labore occaecat do occaecat occaecat anim."',
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontFamily: 'Regular',
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Divider(),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: [
-                            TextWidget(
-                              text: 'Available Services',
-                              fontSize: 22,
-                              color: Colors.black,
-                              fontFamily: 'Bold',
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          TextFieldWidget(
-                                              controller: servicesname,
-                                              label: 'Name of Service'),
-                                        ],
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: TextWidget(
-                                            text: 'Close',
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: TextWidget(
-                                            text: 'Save',
-                                            fontSize: 14,
-                                            fontFamily: 'Bold',
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.add,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 75,
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              return Row(
-                                children: [
-                                  TextWidget(
-                                    text: '• Service ${index + 1}',
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                    fontFamily: 'Medium',
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.delete,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Divider(),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        TextWidget(
-                          text: 'Hospital Doctors',
-                          fontSize: 22,
-                          color: Colors.black,
-                          fontFamily: 'Bold',
-                        ),
-                        SizedBox(
-                          height: 75,
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              return Row(
-                                children: [
-                                  TextWidget(
-                                    text:
-                                        '• Doctor ${index + 1} - Cardiologist',
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                    fontFamily: 'Medium',
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.delete,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Divider(),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        TextWidget(
-                          text: 'Available Emergency Rooms',
-                          fontSize: 22,
-                          color: Colors.black,
-                          fontFamily: 'Bold',
-                        ),
-                        Row(
-                          children: [
-                            TextWidget(
-                              text: '• $rooms rooms available',
-                              fontSize: 16,
-                              color: Colors.grey,
-                              fontFamily: 'Medium',
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                if (rooms > 1) {
-                                  setState(() {
-                                    rooms--;
-                                  });
-                                }
-                              },
-                              icon: const Icon(
-                                Icons.remove,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  rooms++;
-                                });
-                              },
-                              icon: const Icon(
-                                Icons.add,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              );
+            }),
       ),
     );
   }

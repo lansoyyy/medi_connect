@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_home.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
@@ -5,6 +6,8 @@ import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 import 'package:medi_connect/widgets/textfield_widget.dart';
+
+import '../../widgets/toast_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   bool inadmin;
@@ -65,13 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 175,
                 label: 'Sign In',
                 onPressed: () {
-                  if (widget.inadmin) {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => const AdminHomeScreen()));
-                  } else {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => const HospitalHomeScreen()));
-                  }
+                  login(context);
                 },
               ),
               const SizedBox(
@@ -82,5 +79,40 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  login(context) async {
+    try {
+      final user = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: widget.inadmin
+              ? '${emailController.text}@admin.com'
+              : '${emailController.text}@connect.com',
+          password: passwordController.text);
+
+      showToast('Logged in succesfully!');
+      if (widget.inadmin) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
+      } else {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => HospitalHomeScreen(
+                  id: FirebaseAuth.instance.currentUser!.uid,
+                )));
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        showToast("No user found with that email.");
+      } else if (e.code == 'wrong-password') {
+        showToast("Wrong password provided for that user.");
+      } else if (e.code == 'invalid-email') {
+        showToast("Invalid email provided.");
+      } else if (e.code == 'user-disabled') {
+        showToast("User account has been disabled.");
+      } else {
+        showToast("An error occurred: ${e.message}");
+      }
+    } on Exception catch (e) {
+      showToast("An error occurred: $e");
+    }
   }
 }
