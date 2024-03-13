@@ -16,8 +16,8 @@ Future addHospital(
     'status': 'Active',
     'dateTime': DateTime.now(),
     'type': 'Hospital',
-    'lat': 8.1479,
-    'long': 125.1321,
+    'lat': 0,
+    'long': 0,
   };
 
   await docUser.set(json);
