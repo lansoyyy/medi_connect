@@ -45,6 +45,8 @@ dependencies:
   intl:
   google_maps_flutter:
   google_maps_flutter_web: ^0.4.0
+  flutter_address_from_latlng:
+  geolocator:
 
 dev_dependencies:
   flutter_test:
