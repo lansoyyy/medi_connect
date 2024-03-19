@@ -825,7 +825,7 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Birthday',
+                              text: 'Date',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontFamily: 'Bold',
