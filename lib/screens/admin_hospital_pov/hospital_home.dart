@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:medi_connect/services/add_appointment.dart';
+import 'package:medi_connect/services/add_room.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
@@ -45,6 +46,7 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
 
   final doctorjob = TextEditingController();
   final servicesname = TextEditingController();
+  final roomname = TextEditingController();
 
   Marker marker = const Marker(markerId: MarkerId('1'));
 
@@ -571,58 +573,154 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                                 const SizedBox(
                                   height: 5,
                                 ),
-                                TextWidget(
-                                  text: 'Available Emergency Rooms',
-                                  fontSize: 22,
-                                  color: Colors.black,
-                                  fontFamily: 'Bold',
-                                ),
                                 Row(
                                   children: [
                                     TextWidget(
-                                      text:
-                                          '• ${data['rooms']} rooms available',
-                                      fontSize: 16,
-                                      color: Colors.grey,
-                                      fontFamily: 'Medium',
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
+                                      text: 'Available Emergency Rooms',
+                                      fontSize: 22,
+                                      color: Colors.black,
+                                      fontFamily: 'Bold',
                                     ),
                                     widget.inUser
                                         ? const SizedBox()
                                         : IconButton(
-                                            onPressed: () async {
-                                              if (data['rooms'] > 1) {
-                                                await FirebaseFirestore.instance
-                                                    .collection('Hospital')
-                                                    .doc(widget.id)
-                                                    .update({
-                                                  'rooms':
-                                                      FieldValue.increment(-1)
-                                                });
-                                              }
-                                            },
-                                            icon: const Icon(
-                                              Icons.remove,
-                                            ),
-                                          ),
-                                    widget.inUser
-                                        ? const SizedBox()
-                                        : IconButton(
-                                            onPressed: () async {
-                                              await FirebaseFirestore.instance
-                                                  .collection('Hospital')
-                                                  .doc(widget.id)
-                                                  .update({
-                                                'rooms': FieldValue.increment(1)
-                                              });
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        TextFieldWidget(
+                                                            controller:
+                                                                roomname,
+                                                            label:
+                                                                'Name of Room'),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: TextWidget(
+                                                          text: 'Close',
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          addRoom(roomname.text,
+                                                              widget.id);
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: TextWidget(
+                                                          text: 'Save',
+                                                          fontSize: 14,
+                                                          fontFamily: 'Bold',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
                                             },
                                             icon: const Icon(
                                               Icons.add,
                                             ),
                                           ),
                                   ],
+                                ),
+                                SizedBox(
+                                  height: 100,
+                                  child: StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('Rooms')
+                                          .where('hospitalId',
+                                              isEqualTo: widget.id)
+                                          .snapshots(),
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<QuerySnapshot>
+                                              snapshot) {
+                                        if (snapshot.hasError) {
+                                          print(snapshot.error);
+                                          return const Center(
+                                              child: Text('Error'));
+                                        }
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Padding(
+                                            padding: EdgeInsets.only(top: 50),
+                                            child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                              color: Colors.black,
+                                            )),
+                                          );
+                                        }
+
+                                        final dataHospital =
+                                            snapshot.requireData;
+                                        return Column(
+                                          children: [
+                                            for (int i = 0;
+                                                i < dataHospital.docs.length;
+                                                i++)
+                                              Row(
+                                                children: [
+                                                  TextWidget(
+                                                    text:
+                                                        '• ${dataHospital.docs[i]['name']}',
+                                                    fontSize: 16,
+                                                    color: Colors.grey,
+                                                    fontFamily: 'Medium',
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  widget.inUser
+                                                      ? const SizedBox()
+                                                      : IconButton(
+                                                          onPressed: () async {
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'Rooms')
+                                                                .doc(
+                                                                    dataHospital
+                                                                        .docs[i]
+                                                                        .id)
+                                                                .update({
+                                                              'isAvailable':
+                                                                  dataHospital.docs[
+                                                                              i]
+                                                                          [
+                                                                          'isAvailable']
+                                                                      ? false
+                                                                      : true
+                                                            });
+                                                          },
+                                                          icon: dataHospital
+                                                                      .docs[i][
+                                                                  'isAvailable']
+                                                              ? const Icon(
+                                                                  Icons
+                                                                      .check_box,
+                                                                )
+                                                              : const Icon(
+                                                                  Icons
+                                                                      .check_box_outline_blank,
+                                                                ),
+                                                        ),
+                                                ],
+                                              ),
+                                          ],
+                                        );
+                                      }),
                                 ),
                                 const SizedBox(
                                   height: 25,
