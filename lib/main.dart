@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'MediConnect',
-      home: LandingScreen(),
+      home: AdminHomeScreen(),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:medi_connect/services/add_hospital.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
+import 'package:medi_connect/widgets/drawer_widget.dart';
 import 'package:medi_connect/widgets/toast_widget.dart';
 import 'package:intl/intl.dart' show DateFormat, toBeginningOfSentenceCase;
 import '../../utlis/colors.dart';
@@ -26,41 +27,56 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const DrawerWidget(),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(30, 50, 30, 20),
+        padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(
-                    width: 50,
-                  ),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/sample_logo.jpg',
-                          height: 75,
+              Container(
+                width: double.infinity,
+                color: Colors.grey[100],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Builder(builder: (context) {
+                      return IconButton(
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                        icon: const Icon(
+                          Icons.menu,
                         ),
-                        const SizedBox(
-                          width: 50,
-                        ),
-                        TextWidget(
-                          text: 'Medi Connect',
-                          fontSize: 48,
-                          color: primary,
-                          fontFamily: 'Bold',
-                        ),
-                      ],
+                      );
+                    }),
+                    const SizedBox(
+                      width: 100,
                     ),
-                  ),
-                  const SizedBox(
-                    width: 50,
-                  ),
-                ],
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/sample_logo.jpg',
+                            height: 75,
+                          ),
+                          const SizedBox(
+                            width: 50,
+                          ),
+                          TextWidget(
+                            text: 'Medi Connect',
+                            fontSize: 48,
+                            color: primary,
+                            fontFamily: 'Bold',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 50,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 50,
