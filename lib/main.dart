@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_home.dart';
+import 'package:medi_connect/screens/admin_hospital_pov/login_screen.dart';
 import 'package:medi_connect/screens/landing_screen.dart';
 import 'package:medi_connect/screens/users_pov/home_screen.dart';
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'MediConnect',
-      home: AdminHomeScreen(),
+      home: LandingScreen(),
     );
   }
 }

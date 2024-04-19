@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
+import 'package:medi_connect/widgets/drawer_widget.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
 import 'package:medi_connect/widgets/textfield_widget.dart';
 
@@ -29,6 +30,7 @@ class _MapTabState extends State<MapTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const DrawerWidget(),
       body: Column(
         children: [
           Container(
