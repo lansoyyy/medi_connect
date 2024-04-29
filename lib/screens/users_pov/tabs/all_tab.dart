@@ -8,7 +8,11 @@ import '../../../widgets/text_widget.dart';
 import '../../admin_hospital_pov/hospital_home.dart';
 
 class AllTab extends StatefulWidget {
-  const AllTab({super.key});
+  double mylat;
+
+  double mylong;
+
+  AllTab({super.key, required this.mylat, required this.mylong});
 
   @override
   State<AllTab> createState() => _AllTabState();
@@ -171,6 +175,8 @@ class _AllTabState extends State<AllTab> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 HospitalHomeScreen(
+                                                  mylat: widget.mylat,
+                                                  mylong: widget.mylong,
                                                   inUser: true,
                                                   id: data.docs[index].id,
                                                 )));

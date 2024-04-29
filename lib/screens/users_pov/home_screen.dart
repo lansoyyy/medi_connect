@@ -101,7 +101,10 @@ class _UsersHomeScreenState extends State<UsersHomeScreen> {
                     height: 30,
                   ),
                   inAll
-                      ? const AllTab()
+                      ? AllTab(
+                          mylat: lat,
+                          mylong: long,
+                        )
                       : NearTab(
                           mylat: lat,
                           mylong: long,

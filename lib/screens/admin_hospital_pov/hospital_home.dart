@@ -19,8 +19,16 @@ import '../../utlis/functions.dart';
 class HospitalHomeScreen extends StatefulWidget {
   String id;
   bool inUser;
+  double? mylat;
 
-  HospitalHomeScreen({super.key, required this.id, this.inUser = false});
+  double? mylong;
+
+  HospitalHomeScreen(
+      {super.key,
+      required this.id,
+      this.inUser = false,
+      this.mylat,
+      this.mylong});
 
   @override
   State<HospitalHomeScreen> createState() => _HospitalHomeScreenState();
@@ -32,11 +40,6 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
 
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
-
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(8.1479, 125.1321),
-    zoom: 14.4746,
-  );
 
   final name = TextEditingController();
 
@@ -194,6 +197,20 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                             width: 500,
                             height: 500,
                             child: GoogleMap(
+                              polylines: widget.inUser
+                                  ? {
+                                      Polyline(
+                                        color: Colors.red,
+                                        points: [
+                                          LatLng(widget.mylat!, widget.mylong!),
+                                          LatLng(data['lat'], data['long']),
+                                        ],
+                                        polylineId: const PolylineId(
+                                          '123',
+                                        ),
+                                      ),
+                                    }
+                                  : {},
                               markers: <Marker>{
                                 Marker(
                                   markerId: const MarkerId('1'),
@@ -217,7 +234,11 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                                 }
                               },
                               mapType: MapType.normal,
-                              initialCameraPosition: _kGooglePlex,
+                              initialCameraPosition: CameraPosition(
+                                target: LatLng(widget.mylat ?? 8.1479,
+                                    widget.mylong ?? 125.1321),
+                                zoom: 14.4746,
+                              ),
                               onMapCreated: (GoogleMapController controller) {
                                 _controller.complete(controller);
                               },

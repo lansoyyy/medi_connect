@@ -221,6 +221,8 @@ class _NearTabState extends State<NearTab> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 HospitalHomeScreen(
+                                                  mylat: widget.mylat,
+                                                  mylong: widget.mylong,
                                                   inUser: true,
                                                   id: merchantdata.id,
                                                 )));
