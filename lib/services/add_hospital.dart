@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future addHospital(
-    email, name, desc, services, doctors, int rooms, id, logo) async {
+Future addHospital(email, name, desc, services, doctors, int rooms, id, logo,
+    admin, number, location) async {
   final docUser = FirebaseFirestore.instance.collection('Hospital').doc(id);
 
   final json = {
+    'admin': admin,
+    'number': number,
+    'location': location,
     'email': email,
     'name': name,
     'desc': desc,

@@ -24,6 +24,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   final username = TextEditingController();
   final password = TextEditingController();
+  final name = TextEditingController();
+  final location = TextEditingController();
+  final admin = TextEditingController();
+  final number = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,6 +153,38 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       label: 'Hospital Password',
                                       controller: password,
                                       showEye: true,
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFieldWidget(
+                                      borderColor: primary,
+                                      label: 'Hospital Name',
+                                      controller: name,
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFieldWidget(
+                                      borderColor: primary,
+                                      label: 'Hospital Admin',
+                                      controller: admin,
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFieldWidget(
+                                      borderColor: primary,
+                                      label: 'Hospital Location',
+                                      controller: location,
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFieldWidget(
+                                      borderColor: primary,
+                                      label: 'Contact Number',
+                                      controller: number,
                                     ),
                                     const SizedBox(
                                       height: 50,
@@ -351,8 +387,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       final user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: '${username.text}@connect.com', password: password.text);
 
-      addHospital('${username.text}@connect.com', '', '', [], [], 0,
-          user.user!.uid, '');
+      addHospital('${username.text}@connect.com', name.text, '', [], [], 0,
+          user.user!.uid, '', admin.text, number.text, location.text);
 
       showToast('Account created succesfully!');
       Navigator.of(context).pop();
