@@ -10,6 +10,7 @@ import 'package:medi_connect/services/add_appointment.dart';
 import 'package:medi_connect/services/add_room.dart';
 import 'package:medi_connect/utlis/colors.dart';
 import 'package:medi_connect/widgets/button_widget.dart';
+import 'package:medi_connect/widgets/hospital_drawer_widget.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
 import 'package:medi_connect/widgets/textfield_widget.dart';
 import 'package:medi_connect/widgets/toast_widget.dart';
@@ -81,6 +82,9 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
         .doc(widget.id)
         .snapshots();
     return Scaffold(
+      drawer: HospitalDrawerWidget(
+        id: widget.id,
+      ),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 50, 50),
@@ -102,9 +106,16 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const SizedBox(
-                          width: 50,
-                        ),
+                        Builder(builder: (context) {
+                          return IconButton(
+                            onPressed: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            icon: const Icon(
+                              Icons.menu,
+                            ),
+                          );
+                        }),
                         Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
