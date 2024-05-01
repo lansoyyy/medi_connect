@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_home.dart';
-import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/login_screen.dart';
 import 'package:medi_connect/screens/landing_screen.dart';
 import 'package:medi_connect/screens/users_pov/home_screen.dart';
@@ -25,12 +24,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'MediConnect',
-      home: HospitalHomeScreen(
-        inUser: false,
-        id: 'gVj4H5iKAlS3H8a4iQeDRhPYcIo2',
-      ),
+      home: LandingScreen(),
     );
   }
 }
