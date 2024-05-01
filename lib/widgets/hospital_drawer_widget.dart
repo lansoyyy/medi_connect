@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_home.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_tabs/map_tab.dart';
+import 'package:medi_connect/screens/admin_hospital_pov/hospital_bed_page.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
+import 'package:medi_connect/screens/admin_hospital_pov/hospital_services_page.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/login_screen.dart';
 import 'package:medi_connect/screens/landing_screen.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
@@ -46,7 +48,7 @@ class HospitalDrawerWidget extends StatelessWidget {
                   ),
                 ),
                 TextWidget(
-                  text: 'Administrator',
+                  text: 'MediConnect',
                   fontFamily: 'Bold',
                   fontSize: 16,
                 ),
@@ -84,10 +86,7 @@ class HospitalDrawerWidget extends StatelessWidget {
             ListTile(
               onTap: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => HospitalHomeScreen(
-                          id: id,
-                          inUser: false,
-                        )));
+                    builder: (context) => HospitalServicesPage(id: id)));
               },
               title: TextWidget(
                 text: 'Services',
@@ -97,8 +96,10 @@ class HospitalDrawerWidget extends StatelessWidget {
             ),
             ListTile(
               onTap: () {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const MapTab()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => HospitalBedPage(
+                          id: id,
+                        )));
               },
               title: TextWidget(
                 text: 'ER Bed Availability',
