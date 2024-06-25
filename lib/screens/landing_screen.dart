@@ -47,32 +47,26 @@ class LandingScreen extends StatelessWidget {
             const SizedBox(
               height: 50,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ButtonWidget(
-                  width: 200,
-                  color: primary,
-                  label: 'Find Hospitals',
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const UsersHomeScreen()));
-                  },
-                ),
-                const SizedBox(
-                  width: 50,
-                ),
-                ButtonWidget(
-                  width: 200,
-                  color: primary,
-                  label: 'Sign In',
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const MainScreen()));
-                  },
-                ),
-              ],
+            ButtonWidget(
+              width: 200,
+              color: primary,
+              label: 'Find Hospitals',
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const UsersHomeScreen()));
+              },
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ButtonWidget(
+              width: 200,
+              color: primary,
+              label: 'Sign In',
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const MainScreen()));
+              },
             ),
           ],
         ),

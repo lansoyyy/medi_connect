@@ -34,34 +34,28 @@ class MainScreen extends StatelessWidget {
             const SizedBox(
               height: 50,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ButtonWidget(
-                  width: 200,
-                  color: primary,
-                  label: 'Sign in as Admin',
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => LoginScreen(
-                              inadmin: true,
-                            )));
-                  },
-                ),
-                const SizedBox(
-                  width: 50,
-                ),
-                ButtonWidget(
-                  width: 200,
-                  color: primary,
-                  label: 'Sign in as Hospital',
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => LoginScreen()));
-                  },
-                ),
-              ],
+            ButtonWidget(
+              width: 200,
+              color: primary,
+              label: 'Sign in as Admin',
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                          inadmin: true,
+                        )));
+              },
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ButtonWidget(
+              width: 200,
+              color: primary,
+              label: 'Sign in as Hospital',
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
             ),
           ],
         ),

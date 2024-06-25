@@ -5,7 +5,7 @@ getAddress(double lat, double long) async {
       await FlutterAddressFromLatLng().getFormattedAddress(
     latitude: lat,
     longitude: long,
-    googleApiKey: 'AIzaSyDdXaMN5htLGHo8BkCfefPpuTauwHGXItU',
+    googleApiKey: 'AIzaSyALBovovWA3wdK7BTeKqhpDlBEJMAwQrh0',
   );
 
   return formattedAddress;
