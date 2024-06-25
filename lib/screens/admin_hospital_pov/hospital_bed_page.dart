@@ -33,6 +33,47 @@ class _HospitalBedPageState extends State<HospitalBedPage> {
         .doc(widget.id)
         .snapshots();
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFieldWidget(
+                        controller: roomname, label: 'Name of Room'),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: TextWidget(
+                      text: 'Close',
+                      fontSize: 14,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      addRoom(roomname.text, widget.id);
+                      Navigator.pop(context);
+                    },
+                    child: TextWidget(
+                      text: 'Save',
+                      fontSize: 14,
+                      fontFamily: 'Bold',
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
       drawer: HospitalDrawerWidget(
         id: widget.id,
       ),
@@ -103,125 +144,161 @@ class _HospitalBedPageState extends State<HospitalBedPage> {
                   children: [
                     TextWidget(
                       text: 'Available Emergency Rooms',
-                      fontSize: 22,
+                      fontSize: 32,
                       color: Colors.black,
                       fontFamily: 'Bold',
                     ),
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextFieldWidget(
-                                      controller: roomname,
-                                      label: 'Name of Room'),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: TextWidget(
-                                    text: 'Close',
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    addRoom(roomname.text, widget.id);
-                                    Navigator.pop(context);
-                                  },
-                                  child: TextWidget(
-                                    text: 'Save',
-                                    fontSize: 14,
-                                    fontFamily: 'Bold',
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.add,
-                      ),
-                    ),
                   ],
                 ),
-                SizedBox(
-                  height: 300,
-                  child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('Rooms')
-                          .where('hospitalId', isEqualTo: widget.id)
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.hasError) {
-                          print(snapshot.error);
-                          return const Center(child: Text('Error'));
-                        }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Padding(
-                            padding: EdgeInsets.only(top: 50),
-                            child: Center(
-                                child: CircularProgressIndicator(
-                              color: Colors.black,
-                            )),
-                          );
-                        }
-
-                        final dataHospital = snapshot.requireData;
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            for (int i = 0; i < dataHospital.docs.length; i++)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  TextWidget(
-                                    text: '• ${dataHospital.docs[i]['name']}',
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                    fontFamily: 'Medium',
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      await FirebaseFirestore.instance
-                                          .collection('Rooms')
-                                          .doc(dataHospital.docs[i].id)
-                                          .update({
-                                        'isAvailable': dataHospital.docs[i]
-                                                ['isAvailable']
-                                            ? false
-                                            : true
-                                      });
-                                    },
-                                    icon: dataHospital.docs[i]['isAvailable']
-                                        ? const Icon(
-                                            Icons.check_box,
-                                          )
-                                        : const Icon(
-                                            Icons.check_box_outline_blank,
-                                          ),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        );
-                      }),
+                const SizedBox(
+                  height: 20,
                 ),
+                StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('Rooms')
+                        .where('hospitalId', isEqualTo: widget.id)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasError) {
+                        print(snapshot.error);
+                        return const Center(child: Text('Error'));
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Center(
+                              child: CircularProgressIndicator(
+                            color: Colors.black,
+                          )),
+                        );
+                      }
+
+                      final dataHospital = snapshot.requireData;
+                      return DataTable(columns: [
+                        DataColumn(
+                          label: TextWidget(
+                            text: 'Name of Room',
+                            fontSize: 18,
+                            fontFamily: 'Bold',
+                          ),
+                        ),
+                        DataColumn(
+                          label: TextWidget(
+                            text: 'Option',
+                            fontSize: 18,
+                            fontFamily: 'Bold',
+                          ),
+                        ),
+                        DataColumn(
+                          label: TextWidget(
+                            text: 'Option',
+                            fontSize: 18,
+                            fontFamily: 'Bold',
+                          ),
+                        ),
+                      ], rows: [
+                        for (int i = 0; i < dataHospital.docs.length; i++)
+                          DataRow(cells: [
+                            DataCell(
+                              TextWidget(
+                                text: dataHospital.docs[i]['name'],
+                                fontSize: 18,
+                              ),
+                            ),
+                            DataCell(
+                              IconButton(
+                                onPressed: () async {
+                                  await FirebaseFirestore.instance
+                                      .collection('Rooms')
+                                      .doc(dataHospital.docs[i].id)
+                                      .update({
+                                    'isAvailable': dataHospital.docs[i]
+                                            ['isAvailable']
+                                        ? false
+                                        : true
+                                  });
+                                },
+                                icon: dataHospital.docs[i]['isAvailable']
+                                    ? const Icon(
+                                        Icons.check_box,
+                                      )
+                                    : const Icon(
+                                        Icons.check_box_outline_blank,
+                                      ),
+                              ),
+                            ),
+                            DataCell(
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ButtonWidget(
+                                  color: Colors.red,
+                                  label: 'Delete',
+                                  onPressed: () async {
+                                    await FirebaseFirestore.instance
+                                        .collection('Hospital')
+                                        .doc(widget.id)
+                                        .update({
+                                      'rooms': FieldValue.arrayRemove(
+                                          [dataHospital.docs[i]['name']]),
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ])
+                      ]);
+                    })
+                // SizedBox(
+                //   height: 300,
+                //   child: StreamBuilder<QuerySnapshot>(
+                //       stream: FirebaseFirestore.instance
+                //           .collection('Rooms')
+                //           .where('hospitalId', isEqualTo: widget.id)
+                //           .snapshots(),
+                //       builder: (BuildContext context,
+                //           AsyncSnapshot<QuerySnapshot> snapshot) {
+                //         if (snapshot.hasError) {
+                //           print(snapshot.error);
+                //           return const Center(child: Text('Error'));
+                //         }
+                //         if (snapshot.connectionState ==
+                //             ConnectionState.waiting) {
+                //           return const Padding(
+                //             padding: EdgeInsets.only(top: 50),
+                //             child: Center(
+                //                 child: CircularProgressIndicator(
+                //               color: Colors.black,
+                //             )),
+                //           );
+                //         }
+
+                //         final dataHospital = snapshot.requireData;
+                //         return Column(
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           crossAxisAlignment: CrossAxisAlignment.center,
+                //           children: [
+                //             for (int i = 0; i < dataHospital.docs.length; i++)
+                //               Row(
+                //                 mainAxisAlignment: MainAxisAlignment.center,
+                //                 crossAxisAlignment: CrossAxisAlignment.center,
+                //                 children: [
+                //                   TextWidget(
+                //                     text: '• ${dataHospital.docs[i]['name']}',
+                //                     fontSize: 16,
+                //                     color: Colors.grey,
+                //                     fontFamily: 'Medium',
+                //                   ),
+                //                   const SizedBox(
+                //                     width: 10,
+                //                   ),
+
+                //                 ],
+                //               ),
+                //           ],
+                //         );
+                //       }),
+                // ),
               ],
             );
           }),

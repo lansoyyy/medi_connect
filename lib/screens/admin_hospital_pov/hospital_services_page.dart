@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/hospital_home.dart';
 import 'package:medi_connect/utlis/colors.dart';
@@ -24,6 +25,8 @@ class HospitalServicesPage extends StatefulWidget {
 
 class _HospitalServicesPageState extends State<HospitalServicesPage> {
   final servicesname = TextEditingController();
+  final editServicesname = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final Stream<DocumentSnapshot> userData = FirebaseFirestore.instance
@@ -31,6 +34,52 @@ class _HospitalServicesPageState extends State<HospitalServicesPage> {
         .doc(widget.id)
         .snapshots();
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFieldWidget(
+                        controller: servicesname, label: 'Name of Service'),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: TextWidget(
+                      text: 'Close',
+                      fontSize: 14,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      await FirebaseFirestore.instance
+                          .collection('Hospital')
+                          .doc(widget.id)
+                          .update({
+                        'services': FieldValue.arrayUnion([servicesname.text]),
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: TextWidget(
+                      text: 'Save',
+                      fontSize: 14,
+                      fontFamily: 'Bold',
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
       drawer: HospitalDrawerWidget(
         id: widget.id,
       ),
@@ -96,107 +145,133 @@ class _HospitalServicesPageState extends State<HospitalServicesPage> {
                 const SizedBox(
                   height: 50,
                 ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextWidget(
-                        text: 'Available Services',
-                        fontSize: 22,
-                        color: Colors.black,
-                        fontFamily: 'Bold',
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextFieldWidget(
-                                        controller: servicesname,
-                                        label: 'Name of Service'),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: TextWidget(
-                                      text: 'Close',
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      await FirebaseFirestore.instance
-                                          .collection('Hospital')
-                                          .doc(widget.id)
-                                          .update({
-                                        'services': FieldValue.arrayUnion(
-                                            [servicesname.text]),
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                    child: TextWidget(
-                                      text: 'Save',
-                                      fontSize: 14,
-                                      fontFamily: 'Bold',
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.add,
-                        ),
-                      ),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextWidget(
+                      text: 'Available Services',
+                      fontSize: 32,
+                      color: Colors.black,
+                      fontFamily: 'Bold',
+                    ),
+                  ],
                 ),
-                Center(
-                  child: SizedBox(
-                    height: 300,
-                    child: ListView.builder(
-                      itemCount: data['services'].length,
-                      itemBuilder: (context, index) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextWidget(
-                              text: '• ${data['services'][index]}',
-                              fontSize: 16,
-                              color: Colors.grey,
-                              fontFamily: 'Medium',
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            IconButton(
-                              onPressed: () async {
-                                await FirebaseFirestore.instance
-                                    .collection('Hospital')
-                                    .doc(widget.id)
-                                    .update({
-                                  'services': FieldValue.arrayRemove(
-                                      [data['services'][index]]),
-                                });
-                              },
-                              icon: const Icon(
-                                Icons.delete,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
+                const SizedBox(
+                  height: 20,
+                ),
+                DataTable(columns: [
+                  DataColumn(
+                    label: TextWidget(
+                      text: 'Name of Service',
+                      fontSize: 18,
+                      fontFamily: 'Bold',
                     ),
                   ),
-                ),
+                  DataColumn(
+                    label: TextWidget(
+                      text: 'Option',
+                      fontSize: 18,
+                      fontFamily: 'Bold',
+                    ),
+                  ),
+                  DataColumn(
+                    label: TextWidget(
+                      text: 'Option',
+                      fontSize: 18,
+                      fontFamily: 'Bold',
+                    ),
+                  ),
+                ], rows: [
+                  for (int i = 0; i < data['services'].length; i++)
+                    DataRow(cells: [
+                      DataCell(
+                        TextWidget(
+                          text: data['services'][i],
+                          fontSize: 18,
+                        ),
+                      ),
+                      DataCell(
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ButtonWidget(
+                            color: Colors.green,
+                            label: 'Edit',
+                            onPressed: () {
+                              editServicesname.text = data['services'][i];
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextFieldWidget(
+                                            controller: editServicesname,
+                                            label: 'Edit Service Name'),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: TextWidget(
+                                          text: 'Close',
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await FirebaseFirestore.instance
+                                              .collection('Hospital')
+                                              .doc(widget.id)
+                                              .update({
+                                            'services': FieldValue.arrayRemove(
+                                                [data['services'][i]]),
+                                          });
+                                          await FirebaseFirestore.instance
+                                              .collection('Hospital')
+                                              .doc(widget.id)
+                                              .update({
+                                            'services': FieldValue.arrayUnion(
+                                                [editServicesname.text]),
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: TextWidget(
+                                          text: 'Save',
+                                          fontSize: 14,
+                                          fontFamily: 'Bold',
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ButtonWidget(
+                            color: Colors.red,
+                            label: 'Delete',
+                            onPressed: () async {
+                              await FirebaseFirestore.instance
+                                  .collection('Hospital')
+                                  .doc(widget.id)
+                                  .update({
+                                'services': FieldValue.arrayRemove(
+                                    [data['services'][i]]),
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ])
+                ])
               ],
             );
           }),
