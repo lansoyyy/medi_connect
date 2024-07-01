@@ -143,7 +143,7 @@ class _HospitalBedPageState extends State<HospitalBedPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextWidget(
-                      text: 'Available Emergency Rooms',
+                      text: 'Available Emergency Beds',
                       fontSize: 32,
                       color: Colors.black,
                       fontFamily: 'Bold',
@@ -184,10 +184,20 @@ class _HospitalBedPageState extends State<HospitalBedPage> {
                           ),
                         ),
                         DataColumn(
-                          label: TextWidget(
-                            text: 'Option',
-                            fontSize: 18,
-                            fontFamily: 'Bold',
+                          label: Row(
+                            children: [
+                              TextWidget(
+                                text: 'Available',
+                                fontSize: 12,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              TextWidget(
+                                text: 'Occupied',
+                                fontSize: 12,
+                              ),
+                            ],
                           ),
                         ),
                         DataColumn(
@@ -207,25 +217,49 @@ class _HospitalBedPageState extends State<HospitalBedPage> {
                               ),
                             ),
                             DataCell(
-                              IconButton(
-                                onPressed: () async {
-                                  await FirebaseFirestore.instance
-                                      .collection('Rooms')
-                                      .doc(dataHospital.docs[i].id)
-                                      .update({
-                                    'isAvailable': dataHospital.docs[i]
-                                            ['isAvailable']
-                                        ? false
-                                        : true
-                                  });
-                                },
-                                icon: dataHospital.docs[i]['isAvailable']
-                                    ? const Icon(
-                                        Icons.check_box,
-                                      )
-                                    : const Icon(
-                                        Icons.check_box_outline_blank,
-                                      ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      await FirebaseFirestore.instance
+                                          .collection('Rooms')
+                                          .doc(dataHospital.docs[i].id)
+                                          .update({
+                                        'isAvailable': dataHospital.docs[i]
+                                                ['isAvailable']
+                                            ? false
+                                            : true
+                                      });
+                                    },
+                                    icon: dataHospital.docs[i]['isAvailable']
+                                        ? const Icon(
+                                            Icons.check_box,
+                                          )
+                                        : const Icon(
+                                            Icons.check_box_outline_blank,
+                                          ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      await FirebaseFirestore.instance
+                                          .collection('Rooms')
+                                          .doc(dataHospital.docs[i].id)
+                                          .update({
+                                        'isAvailable': dataHospital.docs[i]
+                                                ['isAvailable']
+                                            ? false
+                                            : true
+                                      });
+                                    },
+                                    icon: !dataHospital.docs[i]['isAvailable']
+                                        ? const Icon(
+                                            Icons.check_box,
+                                          )
+                                        : const Icon(
+                                            Icons.check_box_outline_blank,
+                                          ),
+                                  ),
+                                ],
                               ),
                             ),
                             DataCell(

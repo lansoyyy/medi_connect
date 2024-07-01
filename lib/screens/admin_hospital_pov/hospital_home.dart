@@ -24,9 +24,12 @@ class HospitalHomeScreen extends StatefulWidget {
 
   double? mylong;
 
+  bool? inAdmin;
+
   HospitalHomeScreen(
       {super.key,
       required this.id,
+      this.inAdmin = false,
       this.inUser = false,
       this.mylat,
       this.mylong});
@@ -82,9 +85,11 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
         .doc(widget.id)
         .snapshots();
     return Scaffold(
-      drawer: HospitalDrawerWidget(
-        id: widget.id,
-      ),
+      drawer: widget.inUser || widget.inAdmin!
+          ? null
+          : HospitalDrawerWidget(
+              id: widget.id,
+            ),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 50, 50),
@@ -106,16 +111,22 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Builder(builder: (context) {
-                          return IconButton(
-                            onPressed: () {
-                              Scaffold.of(context).openDrawer();
-                            },
-                            icon: const Icon(
-                              Icons.menu,
-                            ),
-                          );
-                        }),
+                        widget.inUser || widget.inAdmin!
+                            ? IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(Icons.arrow_back))
+                            : Builder(builder: (context) {
+                                return IconButton(
+                                  onPressed: () {
+                                    Scaffold.of(context).openDrawer();
+                                  },
+                                  icon: const Icon(
+                                    Icons.menu,
+                                  ),
+                                );
+                              }),
                         Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -608,7 +619,7 @@ class _HospitalHomeScreenState extends State<HospitalHomeScreen> {
                                 Row(
                                   children: [
                                     TextWidget(
-                                      text: 'Available Emergency Rooms',
+                                      text: 'Available Emergency Beds',
                                       fontSize: 22,
                                       color: Colors.black,
                                       fontFamily: 'Bold',

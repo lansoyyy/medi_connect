@@ -159,7 +159,7 @@ class _HospitalTabState extends State<HospitalTab> {
                           height: 10,
                         ),
                         TextWidget(
-                          text: 'Available Emergency Rooms',
+                          text: 'Available Emergency Beds',
                           fontSize: 22,
                           color: Colors.black,
                           fontFamily: 'Bold',

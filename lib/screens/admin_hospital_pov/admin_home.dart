@@ -305,6 +305,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 HospitalHomeScreen(
+                                                  inAdmin: true,
                                                   id: data.docs[i].id,
                                                 )));
                                   },

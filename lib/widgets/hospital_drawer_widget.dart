@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_home.dart';
 import 'package:medi_connect/screens/admin_hospital_pov/admin_tabs/map_tab.dart';
@@ -7,6 +8,7 @@ import 'package:medi_connect/screens/admin_hospital_pov/hospital_services_page.d
 import 'package:medi_connect/screens/admin_hospital_pov/login_screen.dart';
 import 'package:medi_connect/screens/landing_screen.dart';
 import 'package:medi_connect/widgets/text_widget.dart';
+import 'package:medi_connect/widgets/textfield_widget.dart';
 
 import '../utlis/colors.dart';
 
@@ -18,6 +20,9 @@ class HospitalDrawerWidget extends StatelessWidget {
     required this.id,
   });
 
+  final doctorname = TextEditingController();
+
+  final doctorjob = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -79,6 +84,62 @@ class HospitalDrawerWidget extends StatelessWidget {
               },
               title: TextWidget(
                 text: 'Dashboard',
+                fontSize: 14,
+                fontFamily: 'Bold',
+              ),
+            ),
+            ListTile(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFieldWidget(
+                              controller: doctorname, label: 'Name of Doctor'),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          TextFieldWidget(
+                              controller: doctorjob, label: 'Job of Doctor'),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: TextWidget(
+                            text: 'Close',
+                            fontSize: 14,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('Hospital')
+                                .doc(id)
+                                .update({
+                              'doctors': FieldValue.arrayUnion(
+                                  ['${doctorname.text} - ${doctorjob.text}']),
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: TextWidget(
+                            text: 'Save',
+                            fontSize: 14,
+                            fontFamily: 'Bold',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              title: TextWidget(
+                text: 'Add Doctors',
                 fontSize: 14,
                 fontFamily: 'Bold',
               ),
